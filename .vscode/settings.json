@@ -7,9 +7,10 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.autopep8"
     },
-    "python.formatting.autopep8Path": "paste in the output from the which command",
+    "python.formatting.autopep8Path": "/home/casey/.pyenv/shims/autopep8",
     "python.linting.pylintEnabled": true,
     "python.analysis.diagnosticSeverityOverrides": {
         "reportGeneralTypeIssues": "none"
-    }
+    },
+    "python.linting.enabled": true
 }
