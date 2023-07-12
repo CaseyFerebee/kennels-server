@@ -1,15 +1,21 @@
 CUSTOMERS = [
     {
         "id": 1,
-        "name": "Susan Johnson",
+        "fullName": "Susan Johnson",
+        "email": "SusanJ@gmail.com",
+        "address": "203 Lame Street",
+        "status": "Admitted"
     },
     {
         "id": 2,
-        "name": "Bill Paxton",
+        "fullName": "Bill Paxton",
+        "address": "908 Rosebud Street"
+
     },
     {
         "id": 3,
-        "name": "Jerry Lee Lewis"
+        "fullName": "Jerry Lee Lewis",
+        "address": "785 Cornwall Street"
     }
 ]
 
@@ -46,7 +52,7 @@ def create_customer(customer):
 
 def delete_customer(id):
     # Initial -1 value for animal index, in case one isn't found
-    customer_index_index = -1
+    customer_index = -1
 
     # Iterate the ANIMALS list, but use enumerate() so that you
     # can access the index value of each item
@@ -58,3 +64,13 @@ def delete_customer(id):
     # If the animal was found, use pop(int) to remove it from list
     if customer_index >= 0:
         CUSTOMERS.pop(customer_index)
+
+def update_customer(id, new_customer):
+    # Iterate the ANIMALS list, but use enumerate() so that
+    # you can access the index value of each item.
+    for index, customer in enumerate(CUSTOMERS):
+        if customer["id"] == id:
+            # Found the animal. Update the value.
+            CUSTOMERS[index] = new_customer
+            break
+        
