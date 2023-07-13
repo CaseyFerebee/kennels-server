@@ -65,4 +65,3 @@ def update_location(id, new_location):
             # Found the animal. Update the value.
             LOCATIONS[index] = new_location
             break
-        
