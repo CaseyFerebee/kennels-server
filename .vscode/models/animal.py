@@ -14,4 +14,4 @@ class Animal():
         self.employee_id = employee_id
 
 
-new_animal = Animal(1, "Snickers", "Dog", "Germen Shepherd","Recreation", 1, 4,1)
+

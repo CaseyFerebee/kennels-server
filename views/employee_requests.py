@@ -74,4 +74,3 @@ def update_employee(id, new_employee):
             # Found the animal. Update the value.
             EMPLOYEES[index] = new_employee
             break
-        

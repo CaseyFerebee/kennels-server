@@ -4,6 +4,3 @@ class Customer():
         self.id = id
         self.name = name
         self.address = address
-
-        new_customer = Customer(1, "Susan", "203 Lame Street",)
-        
