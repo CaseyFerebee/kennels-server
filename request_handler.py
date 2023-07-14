@@ -1,7 +1,12 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from views import get_all_animals, get_single_animal, get_all_locations, get_single_location, get_single_employee, get_all_employees, get_single_customer, get_all_customers, create_animal, create_location, create_employee, create_customer, delete_animal, delete_customer, delete_employee, delete_location, update_animal, update_customer, update_location, update_employee
-
+from views import (get_all_animals, get_single_animal, get_all_locations,
+                    get_single_location, get_single_employee, get_all_employees,
+                    get_single_customer, get_all_customers, create_animal,
+                    create_location, create_employee,create_customer,
+                    delete_animal, delete_customer, delete_employee,
+                    delete_location, update_animal, update_customer,
+                    update_location,update_employee)
 
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
@@ -28,35 +33,61 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handles GET requests to the server"""
-        self._set_headers(200)
         response = {}  # Default response
 
-        # Parse the URL and capture the tuple that is returned
         (resource, id) = self.parse_url(self.path)
 
         if resource == "animals":
             if id is not None:
-                response = get_single_animal(id)
+                animal = get_single_animal(id)
+                if animal is not None:
+                    response = animal
+                    self._set_headers(200)
+                else:
+                    response = {"message": "Animal not found."}
+                    self._set_headers(404)
             else:
                 response = get_all_animals()
+                self._set_headers(200)
 
-        if resource == "locations":
+        elif resource == "locations":
             if id is not None:
-                response = get_single_location(id)
+                location = get_single_location(id)
+                if location is not None:
+                    response = location
+                    self._set_headers(200)
+                else:
+                    response = {"message": "Location not found."}
+                    self._set_headers(404)
             else:
                 response = get_all_locations()
+                self._set_headers(200)
 
-        if resource == "employees":
+        elif resource == "employees":
             if id is not None:
-                response = get_single_employee(id)
+                employee = get_single_employee(id)
+                if employee is not None:
+                    response = employee
+                    self._set_headers(200)
+                else:
+                    response = {"message": "Employee not found."}
+                    self._set_headers(404)
             else:
                 response = get_all_employees()
+                self._set_headers(200)
 
-        if resource == "customers":
+        elif resource == "customers":
             if id is not None:
-                response = get_single_customer(id)
+                customer = get_single_customer(id)
+                if customer is not None:
+                    response = customer
+                    self._set_headers(200)
+                else:
+                    response = {"message": "Customer not found."}
+                    self._set_headers(404)
             else:
                 response = get_all_customers()
+                self._set_headers(200)
 
         self.wfile.write(json.dumps(response).encode())
 
