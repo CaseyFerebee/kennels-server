@@ -1,21 +1,32 @@
 CUSTOMERS = [
     {
         "id": 1,
-        "fullName": "Susan Johnson",
-        "email": "SusanJ@gmail.com",
+        "fullName": "Mo Silvera",
         "address": "203 Lame Street",
-        "status": "Admitted"
+        "email": "mo@silvera.com",
+        "password": "password"
     },
     {
         "id": 2,
-        "fullName": "Bill Paxton",
-        "address": "908 Rosebud Street"
+        "fullName": "Bryan Nilsen",
+        "address": "500 Internal Error Blvd",
+        "email": "bryan@nilsen.com",
+        "password": "password"
 
     },
     {
         "id": 3,
-        "fullName": "Jerry Lee Lewis",
-        "address": "785 Cornwall Street"
+        "fullName": "Jenna Solis",
+        "address": "301 Redirect Ave",
+        "email": "jenna@solis.com",
+        "password": "password"
+    },
+        {
+        "id": 4,
+        "fullName": "Emily Lemmon",
+        "address": "454 Mulberry Way",
+        "email": "emily@lemmon.com",
+        "password": "password"
     }
 ]
 

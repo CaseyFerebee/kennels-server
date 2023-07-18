@@ -1,12 +1,13 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from views import (get_all_animals, get_single_animal, get_all_locations,
-                    get_single_location, get_single_employee, get_all_employees,
-                    get_single_customer, get_all_customers, create_animal,
-                    create_location, create_employee,create_customer,
-                    delete_animal, delete_customer, delete_employee,
-                    delete_location, update_animal, update_customer,
-                    update_location,update_employee)
+                   get_single_location, get_single_employee, get_all_employees,
+                   get_single_customer, get_all_customers, create_animal,
+                   create_location, create_employee, create_customer,
+                   delete_animal, delete_customer, delete_employee,
+                   delete_location, update_animal, update_customer,
+                   update_location, update_employee)
+
 
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
@@ -94,40 +95,92 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
     def do_POST(self):
-        self._set_headers(201)
+
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-
-        # Convert JSON string to a Python dictionary
         post_body = json.loads(post_body)
 
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-        # Initialize new animal
         new_animal = None
         new_location = None
         new_employee = None
         new_customer = None
 
         if resource == "animals":
-            new_animal = create_animal(post_body)
-            self.wfile.write(json.dumps(new_animal).encode())
+            if "name" in post_body and "species" in post_body and "breeds" in post_body and "location_id" in post_body and "customer_id" in post_body and "employee" in post_body and "status" in post_body:
+                self._set_headers(201)
+                new_animal = create_animal(post_body)
+                response = new_animal
+            else:
+                self._set_headers(400)
+                error_message = ""
+                if "name" not in post_body:
+                    error_message += "WARNING: name is required. "
+                if "breeds" not in post_body:
+                    error_message += "WARNING: breeds is required. "
+                if "customer_id" not in post_body:
+                    error_message += "WARNING: customer_id is required. "
+                if "employee" not in post_body:
+                    error_message += "WARNING: employee is required. "
+                if "status" not in post_body:
+                    error_message += "WARNING: status is required. "
+                if "location_id" not in post_body:
+                    error_message += "WARNING: location_id is required. "
+                    new_animal = error_message
+                    response = new_animal
 
-        if resource == "locations":
-            new_location = create_location(post_body)
-            self.wfile.write(json.dumps(new_location).encode())
+        elif resource == "locations":
+            if "name" in post_body and "address" in post_body:
+                self._set_headers(201)
+                new_location = create_location(post_body)
+                response = new_location
+            else:
+                self._set_headers(400)
+                error_message = ""
+                if "name" not in post_body:
+                    error_message += "WARNING: name is required"
+                if "address" not in post_body:
+                    error_message += "WARNING: address is required"
+                new_location = error_message
+                response = new_location
 
-        if resource == "employees":
-            new_employee = create_employee(post_body)
-            self.wfile.write(json.dumps(new_employee).encode())
+        elif resource == "employees":
+            if "name" in post_body and "address" in post_body and "location_id" in post_body:
+                self._set_headers(201)
+                new_employee = create_employee(post_body)
+                response = new_employee
+            else:
+                self._set_headers(400)
+                error_message = ""
+                if "name" not in post_body:
+                    error_message += "WARNING: name is required. "
+                if "address" not in post_body:
+                    error_message += "WARNING: address is required. "
+                if "location_id" not in post_body:
+                    error_message += "WARNING: location_id is required. "
+                    new_employee = error_message
+                    response = new_employee
 
-        if resource == "customers":
-            new_customer = create_customer(post_body)
-            self.wfile.write(json.dumps(new_customer).encode())
-        # Encode the new animal and send in response
+        elif resource == "customers":
+            if "fullName" in post_body and "address" in post_body:
+                self._set_headers(201)
+                new_customer = create_customer(post_body)
+                response = new_customer
+            else:
+                self._set_headers(400)
+                error_message = ""
+                if "fullName" not in post_body:
+                    error_message += "WARNING: fullName is required. "
+                if "address" not in post_body:
+                    error_message += "WARNING: address is required. "
+                    new_customer = error_message
+                    response = new_customer
 
+        self.wfile.write(json.dumps(response).encode())
     # A method that handles any PUT request.
+
     def do_PUT(self):
         """Handles PUT requests to the server"""
         self._set_headers(204)

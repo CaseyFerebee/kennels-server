@@ -1,3 +1,6 @@
+import json
+import sqlite3
+from models import Animal
 from .location_requests import get_single_location
 from .customer_requests import get_single_customer
 
@@ -5,61 +8,143 @@ ANIMALS = [
     {
         "id": 1,
         "name": "Snickers",
-        "species": "Dog",
-        "breed": "Germen Shepherd",
-        "locationId": 1,
-        "customerId": 3,
-        "employeeId": 1,
-        "status": "Admitted"
+        "status": "Recreation",
+        "breed": "Dalmation",
+        "location_id": 4,
+        "customer_id": 1,
     },
     {
         "id": 2,
-        "name": "Roman",
-        "species": "Dog",
-        "breed": "poodle",
-        "locationId": 1,
-        "customerId": 2,
-        "employeeId": 2,
-        "status": "Admitted"
+        "name": "Jax",
+        "status": "Treatment",
+        "breed": "Beagle",
+        "location_id": 1,
+        "customer_id": 1,
     },
     {
         "id": 3,
-        "name": "Blue",
-        "species": "Cat",
-        "breeds": "Ragdoll",
-        "locationId": 2,
-        "customerId": 1,
-        "employee": 1,
-        "status": "Admitted"
+        "name": "Falafel",
+        "status": "Treatment",
+        "breed": "Siamese",
+        "location_id": 4,
+        "customer_id": 2,
+    },
+    {
+        "id": 4,
+        "name": "Doodles",
+        "status": "Kennel",
+        "breed": "Poodle",
+        "location_id": 3,
+        "customer_id": 1,
+    },
+    {
+        "id": 5,
+        "name": "Daps",
+        "status": "Kennel",
+        "breed": "Boxer",
+        "location_id": 2,
+        "customer_id": 2,
+    },
+    {
+        "id": 6,
+        "name": "Cleo",
+        "status": "Kennel",
+        "breed": "Poodle",
+        "location_id": 2,
+        "customer_id": 2,
+    },
+    {
+        "id": 7,
+        "name": "Popcorn",
+        "status": "Kennel",
+        "breed": "Beagle",
+        "location_id": 3,
+        "customer_id": 2,
+    },
+    {
+        "id": 8,
+        "name": "Curly",
+        "status": "Treatment",
+        "breed": "Poodle",
+        "location_id": 4,
+        "customer_id": 2,
     }
 ]
 
 
 def get_all_animals():
-    return ANIMALS
+    # Open a connection to the database
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+
+        # Just use these. It's a Black Box.
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.status,
+            a.breed,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        """)
+
+        # Initialize an empty list to hold all animal representations
+        animals = []
+
+        # Convert rows of data into a Python list
+        dataset = db_cursor.fetchall()
+
+        # Iterate list of data returned from database
+        for row in dataset:
+
+            # Create an animal instance from the current row.
+            # Note that the database fields are specified in
+            # exact order of the parameters defined in the
+            # Animal class above.
+            animal = Animal(row['id'], row['name'], row['status'],
+                            row['breed'], row['location_id'],
+                            row['customer_id'])
+
+            animals.append(animal.__dict__)
+
+    return animals
+
 
 # Function with a single parameter
 
 
 def get_single_animal(id):
-    requested_animal = None
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
 
-    for animal in ANIMALS:
-        if animal["id"] == id:
-            requested_animal = animal
-            break
+        # Use a ? parameter to inject a variable's value
+        # into the SQL statement.
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        WHERE a.id = ?
+        """, ( id, ))
 
-    if requested_animal:
-        matching_location = get_single_location(requested_animal["locationId"])
-        matching_customer = get_single_customer(requested_animal["customerId"])
+        # Load the single result into memory
+        data = db_cursor.fetchone()
 
-        requested_animal["location"] = matching_location
-        requested_animal["customer"] = matching_customer
+        # Create an animal instance from the current row
+        animal = Animal(data['id'], data['name'], data['breed'],
+                            data['status'], data['location_id'],
+                            data['customer_id'])
 
-        del requested_animal["locationId"]
-        del requested_animal["customerId"]
-
-    return requested_animal
+        return animal.__dict__
 
 
 def create_animal(animal):
