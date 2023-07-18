@@ -1,22 +1,34 @@
 EMPLOYEES = [
     {
         "id": 1,
-        "name": "Jenna Solis",
-        "address": "456 Reed Street",
+        "name": "Madi Peper",
+        "address": "35498 Madison Ave",
         "locationId": 1
     },
     {
         "id": 2,
-        "name": "Logan Welch",
-        "address": "673 Susan Street",
-        "location": 2
+        "name": "Kristen Norris",
+        "address": "100 Main St",
+        "locationId": 1
     },
     {
         "id": 3,
-        "name": "Larry Jackson",
-        "address": "387 Thompson Street",
-        "location": 2
-    }
+        "name": "Meg Ducharme",
+        "address": "404 Unknown Ct",
+        "locationId": 2
+    },
+    {
+        "id": 4,
+        "name": "Hannah Hall",
+        "address": "204 Empty Ave",
+        "locationId": 1
+    },
+    {
+        "id": 5,
+        "name": "Leah Hoefling",
+        "address": "200 Success Way",
+        "locationId": 2
+    },
 ]
 
 
