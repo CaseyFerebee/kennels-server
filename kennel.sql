@@ -20,7 +20,7 @@ CREATE TABLE `Animal` (
 	`location_id` INTEGER,
 	`customer_id` INTEGER NOT NULL,
 	FOREIGN KEY(`location_id`) REFERENCES `Location`(`id`)
-	FOREIGN KEY(`customer_id`) REFERENCES `Customer`(`id`),
+	FOREIGN KEY(`customer_id`) REFERENCES `Customer`(`id`)
 );
 
 
@@ -59,3 +59,4 @@ INSERT INTO `Animal` VALUES (null, "Daps", "Kennel", "Boxer", 2, 2);
 INSERT INTO `Animal` VALUES (null, "Cleo", "Kennel", "Poodle", 2, 2);
 INSERT INTO `Animal` VALUES (null, "Popcorn", "Kennel", "Beagle", 2, 3);
 INSERT INTO `Animal` VALUES (null, "Curly", "Treatment", "Poodle", 2, 4);
+

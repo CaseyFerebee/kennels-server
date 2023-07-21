@@ -1,6 +1,6 @@
 import json
 import sqlite3
-from models import Animal
+from models import Animal, Location, Customer
 
 ANIMALS = [
     {
@@ -9,7 +9,7 @@ ANIMALS = [
         "status": "Recreation",
         "breed": "Dalmation",
         "location_id": 4,
-        "customer_id": 1,
+        "customer_id": 1
     },
     {
         "id": 2,
@@ -17,7 +17,7 @@ ANIMALS = [
         "status": "Treatment",
         "breed": "Beagle",
         "location_id": 1,
-        "customer_id": 1,
+        "customer_id": 1
     },
     {
         "id": 3,
@@ -25,7 +25,7 @@ ANIMALS = [
         "status": "Treatment",
         "breed": "Siamese",
         "location_id": 4,
-        "customer_id": 2,
+        "customer_id": 2
     },
     {
         "id": 4,
@@ -33,7 +33,7 @@ ANIMALS = [
         "status": "Kennel",
         "breed": "Poodle",
         "location_id": 3,
-        "customer_id": 1,
+        "customer_id": 1
     },
     {
         "id": 5,
@@ -41,7 +41,7 @@ ANIMALS = [
         "status": "Kennel",
         "breed": "Boxer",
         "location_id": 2,
-        "customer_id": 2,
+        "customer_id": 2
     },
     {
         "id": 6,
@@ -49,7 +49,7 @@ ANIMALS = [
         "status": "Kennel",
         "breed": "Poodle",
         "location_id": 2,
-        "customer_id": 2,
+        "customer_id": 2
     },
     {
         "id": 7,
@@ -57,7 +57,7 @@ ANIMALS = [
         "status": "Kennel",
         "breed": "Beagle",
         "location_id": 3,
-        "customer_id": 2,
+        "customer_id": 2
     },
     {
         "id": 8,
@@ -65,7 +65,7 @@ ANIMALS = [
         "status": "Treatment",
         "breed": "Poodle",
         "location_id": 4,
-        "customer_id": 2,
+        "customer_id": 2
     }
 ]
 
@@ -83,25 +83,41 @@ def get_all_animals():
         SELECT
             a.id,
             a.name,
-            a.status,
             a.breed,
+            a.status,
             a.location_id,
-            a.customer_id
-        FROM animal a
-        """)
+            a.customer_id,
+            l.name AS location_name,
+            l.address AS location_address,
+            c.name AS customer_name,
+            c.address AS customer_address,
+            c.email AS customer_email,
+            c.password AS customer_password
+        FROM Animal a
+        JOIN Location l ON l.id = a.location_id
+        JOIN Customer c ON c.id = a.customer_id;
+                """)
 
         animals = []
         dataset = db_cursor.fetchall()
 
         for row in dataset:
 
-            animal = Animal(row['id'], row['name'], row['status'],
-                            row['breed'], row['location_id'],
-                            row['customer_id'])
+            # Create an animal instance from the current row
+            animal = Animal(row['id'], row['name'], row['breed'], row['status'],
+                            row['location_id'], row['customer_id'])
 
+            # Create a Location instance from the current row
+            location = Location(row['id'], row['location_name'], row['location_address'])
+
+            customer = Customer(row['customer_id'], row['customer_name'], row['customer_address'], row['customer_email'], row['customer_password'])
+            # Add the dictionary representation of the location to the animal
+            animal.location = location.__dict__
+            animal.customer = customer.__dict__
+            # Add the dictionary representation of the animal to the list
             animals.append(animal.__dict__)
 
-    return animals
+        return animals
 
 
 def get_single_animal(id):
@@ -115,8 +131,8 @@ def get_single_animal(id):
         SELECT
             a.id,
             a.name,
-            a.status,
             a.breed,
+            a.status,
             a.location_id,
             a.customer_id
         FROM animal a
@@ -127,28 +143,38 @@ def get_single_animal(id):
         data = db_cursor.fetchone()
 
         # Create an animal instance from the current row
-        animal = Animal(data['id'], data['name'], data['status'],
-                            data['breed'], data['location_id'],
+        animal = Animal(data['id'], data['name'], data['breed'],
+                            data['status'], data['location_id'],
                             data['customer_id'])
 
         return animal.__dict__
 
 
-def create_animal(animal):
-    # Get the id value of the last animal in the list
-    max_id = ANIMALS[-1]["id"]
+def create_animal(new_animal):
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
-    # Add 1 to whatever that number is
-    new_id = max_id + 1
+        db_cursor.execute("""
+        INSERT INTO Animal
+            ( name, breed, status, location_id, customer_id )
+        VALUES
+            ( ?, ?, ?, ?, ?);
+        """, (new_animal['name'], new_animal['breed'],
+              new_animal['status'], new_animal['location_id'],
+              new_animal['customer_id'], ))
 
-    # Add an `id` property to the animal dictionary
-    animal["id"] = new_id
+        # The `lastrowid` property on the cursor will return
+        # the primary key of the last thing that got added to
+        # the database.
+        id = db_cursor.lastrowid
 
-    # Add the animal dictionary to the list
-    ANIMALS.append(animal)
+        # Add the `id` property to the animal dictionary that
+        # was sent by the client so that the client sees the
+        # primary key in the response.
+        new_animal['id'] = id
 
-    # Return the dictionary with `id` property added
-    return animal
+
+    return new_animal
 
 
 def delete_animal(id):
@@ -175,9 +201,9 @@ def update_animal(id, new_animal):
                 location_id = ?,
                 customer_id = ?
         WHERE id = ?
-        """, (new_animal['name'], new_animal['breed'],
-              new_animal['status'], new_animal['locationId'],
-              new_animal['customerId'], id, ))
+        """, (new_animal['name'], new_animal['status'],
+              new_animal['breed'], new_animal['location_id'],
+              new_animal['customer_id'], id, ))
 
         # Were any rows affected?
         # Did the client send an `id` that exists?
@@ -201,21 +227,25 @@ def get_animal_by_location(location_id):
         SELECT
             a.id,
             a.name,
-            a.status,
             a.breed,
+            a.status,
             a.location_id,
-            a.customer_id
+            a.customer_id,
+            l.name AS location_name,
+            l.address AS location_address
         FROM Animal a
+        JOIN Location l ON a.location_id = l.id
         WHERE a.location_id = ?
-        """, ( location_id, ))
+        """, (location_id,))
 
         animals = []
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            animal = Animal(row['id'], row['name'], row['status'],
-                            row['breed'], row['location_id'],
-                            row['customer_id'])
+            animal = Animal(row['id'], row['name'], row['breed'],
+                            row['status'], row['location_id'],
+                            row['customer_id'], row['location_name'],
+                            row['location_address'])
             animals.append(animal.__dict__)
     return animals
 
@@ -230,8 +260,8 @@ def get_animal_by_status(status):
         SELECT
             a.id,
             a.name,
-            a.status,
             a.breed,
+            a.status,
             a.location_id,
             a.customer_id
         FROM Animal a
@@ -242,8 +272,8 @@ def get_animal_by_status(status):
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            animal = Animal(row['id'], row['name'], row['status'],
-                            row['breed'], row['location_id'],
+            animal = Animal(row['id'], row['name'], row['breed'],
+                            row['status'], row['location_id'],
                             row['customer_id'])
             animals.append(animal.__dict__)
     return animals
