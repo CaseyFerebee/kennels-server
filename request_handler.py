@@ -97,9 +97,10 @@ class HandleRequests(BaseHTTPRequestHandler):
         new_location = None
         new_employee = None
         new_customer = None
+        response = {}
 
         if resource == "animals":
-            if "name" in post_body and "species" in post_body and "breeds" in post_body and "location_id" in post_body and "customer_id" in post_body and "employee" in post_body and "status" in post_body:
+            if "name" in post_body and "breed" in post_body and "location_id" in post_body and "customer_id" in post_body and "status" in post_body:
                 self._set_headers(201)
                 new_animal = create_animal(post_body)
                 response = new_animal
@@ -108,12 +109,10 @@ class HandleRequests(BaseHTTPRequestHandler):
                 error_message = ""
                 if "name" not in post_body:
                     error_message += "WARNING: name is required. "
-                if "breeds" not in post_body:
-                    error_message += "WARNING: breeds is required. "
+                if "breed" not in post_body:
+                    error_message += "WARNING: breed is required. "
                 if "customer_id" not in post_body:
                     error_message += "WARNING: customer_id is required. "
-                if "employee" not in post_body:
-                    error_message += "WARNING: employee is required. "
                 if "status" not in post_body:
                     error_message += "WARNING: status is required. "
                 if "location_id" not in post_body:
@@ -169,11 +168,10 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = new_customer
 
         self.wfile.write(json.dumps(response).encode())
-    # A method that handles any PUT request.
+
 
     def do_PUT(self):
         """Handles PUT requests to the server"""
-        self._set_headers(204)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
