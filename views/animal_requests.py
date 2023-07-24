@@ -134,20 +134,39 @@ def get_single_animal(id):
             a.breed,
             a.status,
             a.location_id,
-            a.customer_id
-        FROM animal a
-        WHERE a.id = ?
-        """, ( id, ))
+            a.customer_id,
+            l.name AS location_name,
+            l.address AS location_address,
+            c.name AS customer_name,
+            c.address AS customer_address,
+            c.email AS customer_email,
+            c.password AS customer_password
+        FROM Animal a
+        JOIN Location l ON l.id = a.location_id
+        JOIN Customer c ON c.id = a.customer_id
+        WHERE a.id = ?;
+        """, (id,))
 
         # Load the single result into memory
         data = db_cursor.fetchone()
 
-        # Create an animal instance from the current row
-        animal = Animal(data['id'], data['name'], data['breed'],
+        if data:
+            # Create an animal instance from the current row
+            animal = Animal(data['id'], data['name'], data['breed'],
                             data['status'], data['location_id'],
                             data['customer_id'])
 
-        return animal.__dict__
+            # Add the location and customer details to the animal
+            location = Location(data['location_id'], data['location_name'], data['location_address'])
+            customer = Customer(data['customer_id'], data['customer_name'], data['customer_address'], data['customer_email'], data['customer_password'])
+            animal.location = location.__dict__
+            animal.customer = customer.__dict__
+
+            return animal.__dict__
+        else:
+            return None
+
+
 
 
 def create_animal(new_animal):

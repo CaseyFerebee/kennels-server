@@ -60,3 +60,4 @@ INSERT INTO `Animal` VALUES (null, "Cleo", "Kennel", "Poodle", 2, 2);
 INSERT INTO `Animal` VALUES (null, "Popcorn", "Kennel", "Beagle", 2, 3);
 INSERT INTO `Animal` VALUES (null, "Curly", "Treatment", "Poodle", 2, 4);
 
+Drop Table Animal;
